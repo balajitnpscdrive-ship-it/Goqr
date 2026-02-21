@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#000000">
+
+<title>Teacher Dashboard</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+</style>
+
+</head>
+
+<body>
+
+<iframe src="https://script.google.com/macros/s/AKfycbyJ7orYS8FDnP7cOGiusdH5QIYJu5Y-J2BkiyzjwCyo1w9IQMTs3W3d0n1MIKb0iSJL/exec"></iframe>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
