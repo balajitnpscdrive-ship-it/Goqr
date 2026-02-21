@@ -2,24 +2,46 @@
 <html>
 <head>
 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<title>Teacher QR Scanner</title>
+
+<!-- PWA manifest -->
 <link rel="manifest" href="manifest.json">
 
 <meta name="theme-color" content="#000000">
 
-<title>QR Scanner</title>
-
+<!-- QR Scanner library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   text-align: center;
+  background-color: #ffffff;
+  margin: 0;
+  padding: 20px;
 }
+
+h2 {
+  color: #333;
+}
+
+button {
+  font-size: 18px;
+  padding: 12px 20px;
+  margin: 10px;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+}
+
 #reader {
   width: 300px;
   margin: auto;
+  margin-top: 20px;
 }
 </style>
 
@@ -35,37 +57,73 @@ body {
 
 <script>
 
+// Your Google Apps Script Web App URL
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyJ7orYS8FDnP7cOGiusdH5QIYJu5Y-J2BkiyzjwCyo1w9IQMTs3W3d0n1MIKb0iSJL/exec";
 
-function startScanner(){
+let scanner;
 
-  const scanner = new Html5Qrcode("reader");
+// Start QR Scanner
+function startScanner() {
 
-  scanner.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
+  scanner = new Html5Qrcode("reader");
 
-    async function(decodedText){
+  Html5Qrcode.getCameras().then(devices => {
 
-      alert("Scanned: " + decodedText);
+    if (devices && devices.length) {
 
-      // Send data to GAS
-      fetch(GAS_URL + "?qr=" + decodedText)
-      .then(response => response.text())
-      .then(result => alert("Server: " + result));
+      scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: 250
+        },
 
-      scanner.stop();
+        function(decodedText) {
 
-    },
+          alert("Scanned QR: " + decodedText);
 
-    function(error){}
+          // Send QR data to GAS
+          fetch(GAS_URL + "?qr=" + encodeURIComponent(decodedText))
+          .then(response => response.text())
+          .then(data => {
+            alert("Server response: " + data);
+          });
 
-  );
+          scanner.stop();
+
+        },
+
+        function(errorMessage) {
+          // ignore errors
+        }
+
+      );
+
+    }
+
+  }).catch(err => {
+
+    alert("Camera error: " + err);
+
+  });
 
 }
 
+// Register Service Worker for PWA
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
+
+  window.addEventListener("load", function() {
+
+    navigator.serviceWorker.register("service-worker.js")
+      .then(function() {
+        console.log("Service Worker registered");
+      })
+      .catch(function(error) {
+        console.log("Service Worker failed:", error);
+      });
+
+  });
+
 }
 
 </script>
