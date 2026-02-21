@@ -8,25 +8,66 @@
 
 <meta name="theme-color" content="#000000">
 
-<title>Teacher Scanner</title>
+<title>QR Scanner</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+}
+#reader {
+  width: 300px;
+  margin: auto;
+}
+</style>
 
 </head>
 
 <body>
 
-<h2>Opening Teacher Dashboard...</h2>
+<h2>Teacher QR Scanner</h2>
+
+<button onclick="startScanner()">Start Scanner</button>
+
+<div id="reader"></div>
 
 <script>
 
-// Redirect to your GAS Web App
-window.location.href = "https://script.google.com/macros/s/AKfycbyJ7orYS8FDnP7cOGiusdH5QIYJu5Y-J2BkiyzjwCyo1w9IQMTs3W3d0n1MIKb0iSJL/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyJ7orYS8FDnP7cOGiusdH5QIYJu5Y-J2BkiyzjwCyo1w9IQMTs3W3d0n1MIKb0iSJL/exec";
 
-</script>
+function startScanner(){
 
-<script>
+  const scanner = new Html5Qrcode("reader");
+
+  scanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+
+    async function(decodedText){
+
+      alert("Scanned: " + decodedText);
+
+      // Send data to GAS
+      fetch(GAS_URL + "?qr=" + decodedText)
+      .then(response => response.text())
+      .then(result => alert("Server: " + result));
+
+      scanner.stop();
+
+    },
+
+    function(error){}
+
+  );
+
+}
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
 }
+
 </script>
 
 </body>
